@@ -58,7 +58,7 @@ def home():
     return render_template("index.html")
 
 
-# HTTP GET - Read all Records and choose a random one
+# HTTP GET - Read all Records, choose a random one then retun it through a json format
 # Method 1 - manual
 # @app.route("/random", methods=["GET"])
 # def get_random_cafe():
@@ -78,16 +78,24 @@ def home():
 #         "seats": random_cafe.seats
 #     })\
 
-# Method 2 - todict
+# Method 2 - to_dict
 @app.route("/random", methods=["GET"])
 def get_random_cafe():
-    all_cafe = db.session.query(Cafe).all()
-    random_cafe = random.choice(all_cafe)
-    return jsonify(cafe = random_cafe.to_dict())
+    result = db.session.execute(db.select(Cafe))
+    all_cafes = result.scalars().all()
+    random_cafe = random.choice(all_cafes)
+    return jsonify(cafe=random_cafe.to_dict())
 
 # Nb: GET is allowed by default on all routes.
 
-# HTTP GET - Read Record
+
+# HTTP GET - Read Records
+@app.route("/all", methods=["GET"])
+def get_all_cafes():
+    result = db.session.execute(db.select(Cafe))
+    all_cafes = result.scalars().all()
+    list_cafes = [cafe.to_dict() for cafe in all_cafes]
+    return jsonify(cafes=list_cafes)
 
 # HTTP POST - Create Record
 
