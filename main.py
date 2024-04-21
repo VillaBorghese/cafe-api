@@ -136,7 +136,35 @@ def add_cafe():
 
 # HTTP PUT/PATCH - Update Record
 
+@app.route("/update-price/<int:cafe_id>", methods=["PATCH"])
+def update_price(cafe_id):
+    if request.method == "PATCH":
+        cafe_to_update = db.session.get(Cafe, cafe_id)
+        if cafe_to_update:
+            # Method n°1
+            # cafe_to_update.__setattr__('coffee_price', request.args.get('new_price'))
+            # Method n°2
+            cafe_to_update.coffee_price = request.args.get('new_price')
+            db.session.commit()
+            return jsonify(response={"success": "Successfully updated the price"}), 201
+        else:
+            return jsonify(error={"Not found": "Sorry, a cafe with that id was not found in the database."}), 404
+
+
 # HTTP DELETE - Delete Record
+@app.route("/reported-closed/<int:cafe_id>", methods=["DELETE"])
+def delete_cafe(cafe_id):
+    if request.args.get('api_key') == "TopSecretAPIKey":
+        cafe_to_rm = db.session.get(Cafe, cafe_id)
+        if cafe_to_rm:
+            db.session.delete(cafe_to_rm)
+            db.session.commit()
+            return jsonify(response={"success": "Successfully removed the cafe from the database"}), 201
+        else:
+            return jsonify(error={"Not found": "Sorry, a cafe with that id was not found in the database."}), 404
+    else:
+        return jsonify(error={"Unauthorized": "You are not authorized to access this resource. Please make sur you "
+                                              "have the correct api_key"}), 401
 
 
 if __name__ == '__main__':
