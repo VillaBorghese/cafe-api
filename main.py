@@ -86,6 +86,7 @@ def get_random_cafe():
     random_cafe = random.choice(all_cafes)
     return jsonify(cafe=random_cafe.to_dict())
 
+
 # Nb: GET is allowed by default on all routes.
 
 
@@ -109,7 +110,29 @@ def search_cafe():
         return jsonify(cafes=list_cafes)
     else:
         return jsonify(error={"Not found": "Sorry, there is no cafe at that location."}), 404
+
+
 # HTTP POST - Create Record
+@app.route("/add", methods=["POST"])
+def add_cafe():
+    if request.method == "POST":
+        cafe = Cafe(
+            name=request.form["name"],
+            map_url=request.form["map_url"],
+            img_url=request.form["img_url"],
+            location=request.form["location"],
+            seats=request.form["seats"],
+            has_toilet=bool(request.form["has_toilet"]),
+            has_wifi=bool(request.form["has_wifi"]),
+            has_sockets=bool(request.form["has_sockets"]),
+            can_take_calls=bool(request.form["can_take_calls"]),
+            coffee_price=request.form["coffee_price"]
+        )
+        db.session.add(cafe)
+        db.session.commit()
+
+        return jsonify(response={"success": "Successfully added the new cafe."}), 201
+
 
 # HTTP PUT/PATCH - Update Record
 
